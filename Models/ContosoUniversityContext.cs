@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -219,10 +222,35 @@ namespace AspNet3Course.Models
 
                 entity.Property(e => e.Name).HasMaxLength(50);
             });
+            
+            modelBuilder.Entity<Course>().HasQueryFilter(x => !x.IsDeleted);
+            
+            modelBuilder.Entity<Department>().HasQueryFilter(x => !x.IsDeleted);
+            
+            modelBuilder.Entity<Person>().HasQueryFilter(x => !x.IsDeleted);
 
             OnModelCreatingPartial(modelBuilder);
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+        
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var entityEntries = ChangeTracker.Entries<Course>();
+            foreach (var entityEntry in entityEntries)
+            {
+                if (entityEntry.State == EntityState.Modified)
+                {
+                    entityEntry.CurrentValues.SetValues(new {DateModified = DateTime.Now});
+                }
+                else if (entityEntry.State == EntityState.Deleted)
+                {
+                    entityEntry.CurrentValues.SetValues(new {IsDeleted = true});
+                    entityEntry.State = EntityState.Modified;
+                }
+            }
+
+            return (await base.SaveChangesAsync(true, cancellationToken));
+        }
     }
 }
