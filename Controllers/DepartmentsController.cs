@@ -84,6 +84,13 @@ namespace AspNet3Course.Controllers
 
             return department;
         }
+        
+        [HttpGet("DepartmentCourseCount")]
+        public async Task<ActionResult<IEnumerable<VwDepartmentCourseCount>>> GetDepartmentCourseCount()
+        {
+            return await _context.VwDepartmentCourseCount.FromSqlRaw("SELECT * FROM [dbo].[vwDepartmentCourseCount]")
+                .ToListAsync();
+        }
 
         private bool DepartmentExists(int id)
         {
