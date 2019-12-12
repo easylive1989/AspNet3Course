@@ -101,6 +101,18 @@ namespace AspNet3Course.Controllers
             return course;
         }
 
+        [HttpGet("CourseStudents")]
+        public async Task<ActionResult<List<VwCourseStudents>>> CourseStudents()
+        {
+            return await _context.VwCourseStudents.ToListAsync();
+        }
+        
+        [HttpGet("CourseStudentCount")]
+        public async Task<ActionResult<List<VwCourseStudentCount>>> CourseStudentCount()
+        {
+            return await _context.VwCourseStudentCount.ToListAsync();
+        }
+
         private bool CourseExists(int id)
         {
             return _context.Course.Any(e => e.CourseId == id);
